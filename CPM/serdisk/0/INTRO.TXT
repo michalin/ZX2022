@@ -1,0 +1,19 @@
+
+Type "a<n>:" to change the user directory, where n is the user number. 
+"DIR" shows the files in the directory. You can try the following programs:
+
+a0: MBASIC	Microsoft Basic
+a1: WS.COM	Wordstar, a popular word processor
+a2: MP.COM	Microsoft Multiplan, the ancestor of Excel
+b3: Various games
+	CATCHUM.COM:	Pacman for CP/MP
+	LADDER.COM:	Climb up ladders but don´t get caught
+	GORILLA.COM:	Two Gorillas throw explosive bananas at each other. 
+			Choose 3) ANSI (color)
+	QUATRIS.COM:	Tetris for CP/M
+	SARGON.COM:	Chess Game
+b4: ZORK1.COM ... ZORK3.COM:	Text adventures that challenge your phantasy
+b5: A personality test. Start with "mbasic you.bas"
+
+You can find these and more programs on www.retroarchive.org
+ 
