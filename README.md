@@ -34,9 +34,9 @@ I recommend to make an adapter cable from an USB extension cable as shown below:
 ![USB Keyboard Connection](./pictures/usbboard.png)
 
 ## Changing the keyboard layout
-To change the keyboard layout, change the `KBLAYOUT` variable in the file [CPM/SYSCFG.LIB](./CPM/SYSCFG.LIB) and [rebuild the CP/M rom image](./CPM/readme.md).
+To change the keyboard layout, change the `KBLAYOUT` variable in the file [CPM/SYSCFG.LIB](./CPM/SYSCFG.LIB) and [rebuild the CP/M rom image](CPM/README.md).
 
 ## Using With the TMS9918 Video Card
 You find the schematic and gerber files in [./Schematic/Video/](./Schematic/Video/). Set a jumper or solder a bridge at the position `IO2` on the pin header J3. This configures the card for IO addresses starting at 20h. This setting must match the `p$vdp` constant in [CPM/SYSCFG.LIB](./CPM/SYSCFG.LIB)
 
-The TMS9918 can only display 40 columns, while terminals display 80 columns. This CP/M version is built for 80 columns, but it can be changed to 40 columns. To do this, open the file [gencpm.dat](./CPM/gencpm.dat), change the constant `PAGWID` to 28 (Which is 40 in hex) and [rebuild the CP/M rom image](./CPM/readme.md).
+The TMS9918 can only display 40 columns, while terminals display 80 columns. This CP/M version is built for 80 columns, but it can be changed to 40 columns. To do this, open the file [gencpm.dat](./CPM/gencpm.dat), change the constant `PAGWID` to 28 (Which is 40 in hex) and [rebuild the CP/M rom image](CPM/README.md).
