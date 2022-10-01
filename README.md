@@ -35,6 +35,9 @@ It is not necessary to plug the Arduino into the pin header. Instead of an Ardui
 
 The folder [CPM/serdisk](./CPM/serdisk/) contains the CP/M programs in up to 16 user folders numbered from 0 to 15. If any of these files have changed, click the "Reload" Button to apply the changes. To access the files from CP/M, type `B`, followed by the user number 1-15 and a colon. For example `B5:` gives access to the files under [CPM/serdisk/5](./CPM/serdisk/5)
 
+## Connecting a Hard Drive
+IDE (PATA) hard drives can be connected through a 40-Pin connector. I recommend using a CompactFlash with a CF to IDE adapter. Best suitable are adapters that support power supply over pin 20 like this one: [https://amzn.to/3SFdIag](https://amzn.to/3SFdIag). call ´mkdsk.com´ on the serial disk drive B> to format the drive.
+
 ## The Autostart Feature
 Clicking the `File` button in the loader app uploads an executable CP/M file (*.com) that is executed after each power-on or reboot. The loader app detects when there is a new version of this "autostart program" and restarts the ZX2022 with this new version. This function is particularly useful for writing new software.
 
