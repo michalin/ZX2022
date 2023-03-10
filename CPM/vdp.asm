@@ -21,7 +21,7 @@ VDP_WHITE equ 15
 ;Includes
     maclib syscfg
 ;include z80.lib
-
+mode_csi equ '[' ;Process Terminal Control sequence ^[
 bs  equ 8   ;backspace
 cr  equ 13  ;Carriage Return
 lf  equ 10  ;Line Feed
@@ -30,6 +30,7 @@ eos equ 0
 linelen equ 40
 nlines  equ 24
 ntable  equ 0x800
+def_cursor  equ 127 ;Default cursor character
 VDP_COLOR equ (VDP_BLACK << 4) + VDP_WHITE
 ;VDP_COLOR equ (VDP_DARK_GREEN << 4) + VDP_BLACK
 cseg
@@ -72,6 +73,10 @@ cseg
 
 ; Character to print in register c
 ?vdputc:
+    ld a,(mode)
+    cp mode_csi! jp z,_csi
+    cp 0! jp nz,_setmode
+    
     ld a,(lastchr)! out(p$vdp)    ;remove cursor
     ld hl,(y)! ld de,(x)! add hl,de 
     call vram$wraddr
@@ -79,13 +84,10 @@ cseg
     cp a,lf! jp z,_lf
     cp a,cr! jp z,_cr
     cp a,bs! jp z,_bs
-    cp a,esc! jp z,_esc
+    cp a,esc! jp z,_setmode
 
     out(p$vdp)                      ;print character to screen
-
     ld a,(x)! inc a! ld (x),a       ;inc col counter
-    ;cp linelen                      ;end of line?
-    ;jp m, vdputc$end                ;jump to the end of routine if not end of line
     jp vdputc$end
     xra a! ld(x),a
     ;Fall through
@@ -149,7 +151,72 @@ cseg
         call vram$wraddr
         jp vdputc$end
 
-    _esc:
+    _setmode:
+        cp c! jp nz,_notfirst ;Called for the first time? (a=c)
+        ld (mode),a ;When called for the first time, set mode=a=c=27
+        ret
+        _notfirst: 
+        ld a,c! cp mode_csi! ret nz ;is ^[ ?
+        ld (mode),a
+        xor a! ld (csiptr),a
+        ret
+
+    _csi: ;Control Sequence indicator ^[
+        ld hl,csibuf
+        ld de,(csiptr)
+        add hl,de
+        ld(hl),c ;Write Terminal control code into buffer
+        inc de! ld (csiptr),de 
+        ld a,0x40! cp c! ret p  ;c<0x40?
+        ld a,0x7E! cp c! ret m  ;c>0x7E?
+        xor a! ld(mode),a ;We reached the last character of the CSI. Switch back to normal mode
+        ;jp dump
+        _csi_parse:
+        ld a,c ;Terminating character still in c, tells us what to do
+        cp 'H'! jp z,_csi_cup
+        cp 'J'! jp z,_csi_ed
+        cp 'l'! jp z,_csi_hidecurs
+        cp 'h'! jp z,_csi_showcurs
+        ret
+        dump:
+            ld hl,csibuf
+            ld a,(csiptr)! ld b,a
+            ld c,p$vdp
+            foo:
+                ld a,(hl)
+                out (p$vdp)
+                ld a,(x)! inc a! ld (x),a 
+                inc hl
+                dec b
+                jp nz,foo
+                ret
+
+        _csi_cup: ;Cursor position ^[H
+            xor a! ld (x), a
+            ld hl,ntable! ld(y),hl
+            call vram$wraddr
+            ret
+
+        _csi_ed: ;Erase display from cursor position ^[J
+            ;ld hl,(y)! ld de,(x)! add hl,de! ex de,hl ;Current cursor address in de 
+            ;ld hl,ntable+nlines*linelen ;End of name table
+            ;sbc hl,de ;Number of bytes until end in hl
+            ld hl,ntable! call vram$wraddr
+            ld hl,nlines*linelen
+            _csi_ed_era:
+            xor a 
+            out (p$vdp)
+            dec hl  
+            ld a,l! or h! jp nz,_csi_ed_era ;loop until h=l=0
+            ret
+
+        _csi_hidecurs: ;Hide cursor
+            ld a,0! ld (cursor),a
+            ret
+
+        _csi_showcurs: ;Hide cursor
+            ld a,def_cursor! ld (cursor),a
+            ret
     ;todo: escape sequences
 
  vdputc$end:
@@ -157,16 +224,20 @@ cseg
     call vram$rdaddr
     in (p$vdp)! ld (lastchr), a  ;save what´s under the current cursor pos.
     call vram$wraddr
-    ld a, 127! out (p$vdp) ;Set cursor
+    ld a,(cursor)! out (p$vdp) ;Set cursor
     ld hl,(y)! ld de,(x)! add hl,de 
     call vram$wraddr
     ret
 
 dseg
-rdline dw 0
-wrline dw 0
+rdline  dw 0
+wrline  dw 0
 linebuf ds 40   ;line currently scrolled
 lastchr db 0
+csiptr  dw 0 ;First byte points to current element in buffer
+csibuf  ds 10 ;Buffer for Terminal Control Sequence after ^[)
+mode    db 0    ;1: Terminal control
+cursor  db def_cursor ;Default cursor
 
 
 ;-------------------- Helper functions ------------------------
@@ -190,7 +261,7 @@ dseg
 ;Variables
     x dw 0  
     y dw 0 ;VRAM address of current line (y*40)
-    crsr defw 0   ;current position in name table
+    ;crsr defw 0   ;current position in name table
 
 textmode:
     db 0, 0x80      ;Reg0
@@ -322,7 +393,7 @@ patterns:
 ;    db 0x00,0x00,0xF8,0x10,0x20,0x40,0xF8,0x00 ; z
 
     db 0x38,0x40,0x20,0xC0,0x20,0x40,0x38,0x00 ; {
-    db 0x40,0x20,0x10,0x08,0x10,0x20,0x40,0x00 ; >
+    db 0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x00 ; |
     db 0xE0,0x10,0x20,0x18,0x20,0x10,0xE0,0x00 ; }
     db 0x40,0xA8,0x10,0x00,0x00,0x00,0x00,0x00 ; ~
     db 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF 
@@ -331,6 +402,5 @@ _patterns
     stack ds 16
     db 'ende'
     stack$end equ $
-
 
 

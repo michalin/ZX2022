@@ -66,6 +66,12 @@ mkdsk: utils.rel chario.rel vdp.rel
 utils.rel: utils.asm
 	$(ZMAC) utils.asm
 
+trmtest:
+	$(ZMAC) trmt.asm 
+	$(LINK) trmt,utils
+	$(CP) trmt.com serdisk\0
+
+
 clean:
 	$(RM) *.prn *.rel *.spr *.sym *.sys *.sbin *.lst xxprog.* 
 

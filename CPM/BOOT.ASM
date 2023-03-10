@@ -31,19 +31,14 @@ false equ not true
 	ld a,dart$ra5! or 02h! out (p$zdartCFG$A),a
 	ld c,2! call ?cinit ;Init VDP if p$vdp in syscfg.lib is not 0
 
-	PRINTLN 'ZX 2020 CP/M 3.1. Have fun.'		; print signon message
+	PRINTLN 'ZX 2022 CP/M 3.1. Have fun.'		; print signon message
 
 ;Check for PATA drive
 	PRINT 'Looking for hard drive... '
 	call painit
 	;a=0: HD found, a=1: HD not found or HD error
 	or a! jp nz,no$hd
-	;SETERMDE 0feh ;Return error  
-	;SELDISK 2
 	PRINTLN 'found.'
-	;SEARCHF search$fcb ;Is there a .com file on the PATA drive
-	;inc a! ret nz ;If found
-	;PRINTLN 'Drive not ready. Call mkdsk.com'
 	ret
 no$hd:
 	PRINTLN 'not found'

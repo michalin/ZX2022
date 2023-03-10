@@ -140,6 +140,7 @@ boot:
 
 	call set$jumps
 	call ?ldccp				; fetch CCP for first time
+	lhld(@MXTPA)! sphl  
 	jmp ccp
 
 	; WBOOT

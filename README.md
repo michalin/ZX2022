@@ -18,10 +18,11 @@ In contrast to its predecessor, the ZX2020, this one uses a 32 kilobyte EE Prom 
     - 32 Sprites (8x8, 16x16 or 32x32 upscaled)
     - NTSC (TMS9918) or PAL (TMS9928)
 - Supports PS/2 or PS/2 compatible USB keyboards. New USB keyboards or wireless keyboards may NOT work.
+- Now programmable in C using SDCC (Small Device C Compiler)
 
 ## To build the ZX 2022, do the following
 - Wire the parts on a breadboard or prototype board according to the schematic. 
-- OR: Make or order a PCB based on the gerber files `./Schematic/Mainboard/gerber.zip` (Recommended)
+- OR: Make or order a PCB based on the gerber files `./Schematic/Mainboard/gerber-main.zip` (Recommended)
 - Load the Arduino Sketch `loader/loader.ino` into an Arduino Mega
 - Plug the Arduino Mega on the Bus connector, where it is marked on the silkscreen
 - Connect the TxB and RxB pins of the DART with Pin 0 (TX0) and 1 (RX0) of your Arduino Mega

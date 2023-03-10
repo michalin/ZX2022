@@ -251,7 +251,7 @@ void Serialdisk::readUserDir(QString path, uint8_t usernr) {
             uint16_t size = fileinfos[i].size();
             uint8_t size_b = floor((float)size / blksize); //Size in full blocks
             extent[12] = size_b;
-            extent[15] = (size-blksize*size_b) / 128; //Allocated space of last block in 128k records
+            extent[15] = ceil((float)(size-blksize*size_b) / 128); //Allocated space of last block in 128k records
             for(uint8_t j = 0; j <= 2*size_b; j+=2) //Fill allocation list
             {
                 extent[j+16] = (uint8_t)blocknr;

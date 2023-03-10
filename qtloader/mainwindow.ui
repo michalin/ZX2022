@@ -227,9 +227,12 @@
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Expanding</enum>
+        </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>40</width>
+          <width>30</width>
           <height>20</height>
          </size>
         </property>
@@ -246,7 +249,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Loader</string>
+           <string>Load</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -277,7 +280,7 @@
            <string>Upload ROM image</string>
           </property>
           <property name="text">
-           <string>ROM Image</string>
+           <string>Kernel File</string>
           </property>
          </widget>
         </item>
@@ -290,7 +293,7 @@
            <string>Upload Autostart excecutable</string>
           </property>
           <property name="text">
-           <string>File</string>
+           <string>  Autorun File </string>
           </property>
          </widget>
         </item>
@@ -408,12 +411,12 @@
   </action>
   <action name="actionSet_Prom_File">
    <property name="text">
-    <string>Set Prom File</string>
+    <string>Set Autorun File</string>
    </property>
   </action>
   <action name="actionErase_Prom_FS">
    <property name="text">
-    <string>Erase Prom FS</string>
+    <string>Erase Autorun File</string>
    </property>
   </action>
  </widget>

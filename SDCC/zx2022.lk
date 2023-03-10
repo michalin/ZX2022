@@ -1,0 +1,9 @@
+-mjwx
+-i zx2022.ihx
+-b _CODE = 0x0100
+-k C:\Program Files\SDCC\bin\..\lib\z80
+-l z80
+zx2022.rel
+source.rel
+
+-e

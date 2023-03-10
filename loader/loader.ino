@@ -75,12 +75,12 @@ void setup()
 
 void serialEvent()
 {
-  static uint16_t bytestoload = 0;
+  static uint16_t chunkstoload = 0;
   static uint16_t addr; // start addr = BDOS address
   uint8_t chunk[CHUNKLEN];
 
   Serial.readBytes(chunk, CHUNKLEN);        // Read chunk
-  if (bytestoload == 0)                     // Is it a command from PC? (@...@)
+  if (chunkstoload == 0)                     // Is it a command from PC? (@...@)
   {                                         // Handle commands
     String command = String((char *)chunk); // Serial.readString();
     //println(command.c_str());
@@ -89,7 +89,7 @@ void serialEvent()
     {
       //  Get start address and total number of bytes expected
       memcpy(&ldaddr, (chunk + 6), sizeof(ldaddr));
-      bytestoload = ldaddr.size;
+      chunkstoload = ceil((float)ldaddr.size / CHUNKLEN);
       addr = ldaddr.base;
       RESET();
       if (BUSRQ(ACTIVE) == BUSERROR)
@@ -103,7 +103,7 @@ void serialEvent()
         println("Warning: Could not select EEPROM. Writing to RAM");
 
       memProtect(false);
-      println("Loading %d bytes (%d chunks). Base: 0x%04X", bytestoload, bytestoload / CHUNKLEN, addr);
+      println("Loading %d chunks (%d bytes). Base: 0x%04X", chunkstoload, chunkstoload*CHUNKLEN, addr);
       Serial.write("<$>rqchunk</$>"); // Signal for loader to send first chunk of image file
       return;
     }
@@ -137,7 +137,7 @@ void serialEvent()
         println("Writing directory record for file: %s.%s", fname.c_str(), ldaddr.fext);
         memcpy(entry.filename, ldaddr.fname, 8);
         memcpy(entry.fileext, ldaddr.fext, 3);
-        entry.RC = ldaddr.size / 128;
+        entry.RC = (byte)ceil((float)ldaddr.size / 128);
         for (int i = 0; i <= ldaddr.size / 1024; i++)
           entry.AL[i] = i + 1;
         if(!memWrite((uint8_t*)&entry, FS_BASE, 32))
@@ -157,21 +157,21 @@ void serialEvent()
       Serial.end();
     }
   }
-  else if (bytestoload > 0) // Is there still data to load into EEPROM?
+  else if (chunkstoload) // Is there still data to load into EEPROM?
   {
     if (!memWrite(chunk, addr, CHUNKLEN))
     {
       println("Memory Write Error");
-      bytestoload = 0;
+      chunkstoload = 0;
       return;
       Serial.write("<$>error</$>");
     }
     addr += CHUNKLEN;
-    bytestoload -= CHUNKLEN;
+    chunkstoload--;
 
     Serial.write("<$>rqchunk</$>"); // Request next chunk
     // println("%d bytes left", bytestoload);
-    if (bytestoload == 0) // All chunks processed
+    if (chunkstoload == 0) // All chunks processed
     {
       println("Success");
       memProtect(true);

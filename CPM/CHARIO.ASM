@@ -40,7 +40,7 @@ cseg
 	ret
 
 ?ci::		; character input
-	ci1: call ?cist! jp z,ci1		; wait for character ready
+	ci1: call ?cist! or a! jp z,ci1		; wait for character ready (a=255)
     bit 7,a! jp nz,ps2$read
 	dec c ! in a,(c)			; get data
 	and 7Fh				; mask parity
@@ -58,11 +58,14 @@ cseg
 	    ld de,data$ports ! add hl,de	; make pointer to port address
 	    ld c,(hl) ! inc c		; get SIO status port
 	    in a,(c)				; read from status port
-	    and 1! ret nz	; new character in DART, return 1
+	    and 1! jp nz,chr$avail ; new character in DART
         ret
     ps2$stat:
-        ld a,(kbinchr)! and 80h! ret nz ;character in PS/2, return 80h
-	    xor a! ret ;(else) if no character available, return 0
+        ld a,(kbinchr)! and 80h! jp nz,chr$avail ;character in PS/2
+	    ret ;(else) if no character available, return 0
+    chr$avail:
+        or 1 ; Signal to BDOS that char. Available
+        ret ;Return ffh if character available
 
 ?co::		; character output
  	ld a,b! cp vdp$pos! jp z,vdp$out
